@@ -1,2 +1,2 @@
 # AOC23
-Advent Of Code 2023 Solutions In C++.
+Advent Of Code 2023 Solutions In Rust.
