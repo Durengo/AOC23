@@ -49,12 +49,12 @@ fn part2(input: &str) -> String {
         buffer.clear();
         buffer = line.to_string();
         // buffer = line.to_string();
-        println!("Line: {}", line);
+        // println!("Line: {}", line);
 
         // Try to split the line into sections of words and digits using the hashmap
         // We need to sample not character by character, but word by word - using the hashmap
         let mut times = 0;
-        while buffer.len() > 0 {
+        while buffer.len() != 0 {
             for word in PRIVILEGES.iter() {
                 // let mut len = word.0.len();
 
@@ -64,7 +64,7 @@ fn part2(input: &str) -> String {
 
                 let slice = (&buffer[0..word.0.len()]).to_string();
 
-                println!("Buffer: {} | Word: {}", slice.as_str(), word.0);
+                // println!("Buffer: {} | Word: {}", slice.as_str(), word.0);
 
                 if slice.contains(word.0) {
                     digit_count += 1;
@@ -79,17 +79,21 @@ fn part2(input: &str) -> String {
 
                     // Remove the word from the buffer, but only the first instance of it
                     // buffer = buffer.replace(word.0, "");
-                    println!("Removing slice: {}", slice.as_str());
+                    // println!("Removing slice: {}", slice.as_str());
                     buffer = buffer.replacen(word.0, "", 1);
                     break;
                 }
             }
 
-            println!("Buffer after: {}", buffer.as_str());
+            // println!("Buffer after: {}", buffer.as_str());
+
+            if buffer.len() == 0 {
+                break;
+            }
 
             // Now check specifically for digits
             let slice: String = (&buffer[0..1]).to_string();
-            println!("Slice 2: {}", slice.as_str());
+            // println!("Slice 2: {}", slice.as_str());
             if slice.parse::<i32>().is_ok() {
                 digit_count += 1;
 
@@ -103,90 +107,30 @@ fn part2(input: &str) -> String {
 
                 // Remove the word from the buffer
                 buffer = buffer.replacen(slice.as_str(), "", 1);
-                println!("Removing slice: {}", slice.as_str());
+                // println!("Removing slice: {}", slice.as_str());
             }
 
             times += 1;
             if times > 1 {
+                let forward_slice: String = (&buffer[0..1]).to_string();
+                if forward_slice.parse::<i32>().is_ok() {
+                    // println!("Forward slice is digit: {}", forward_slice.as_str());
+                    digit_count += 1;
+
+                    if digit_count == 1 {
+                        first_digit = forward_slice.parse::<i32>().unwrap();
+                    }
+
+                    if digit_count >= 2 {
+                        last_digit = forward_slice.parse::<i32>().unwrap();
+                    }
+                }
+
                 buffer = (&buffer[1..]).to_string();
-                println!("Buffer end loop: {}", buffer.as_str());
+                // println!("Buffer end loop: {}", buffer.as_str());
                 times = 0;
             }
         }
-
-        // for c in line.chars() {
-        //     buffer.push(c);
-
-        //     println!("Buffer: {}", buffer.as_str());
-
-        //     // Check if the buffer contains a digit word
-        //     if PRIVILEGES.contains_key(buffer.as_str()) {
-        //         digit_count += 1;
-
-        //         if digit_count == 1 {
-        //             first_digit = *PRIVILEGES.get(buffer.as_str()).unwrap();
-        //         }
-
-        //         if digit_count >= 2 {
-        //             last_digit = *PRIVILEGES.get(buffer.as_str()).unwrap();
-        //         }
-
-        //         println!("Found digit word: {}", buffer.as_str());
-
-        //         buffer.clear();
-        //     }
-
-        //     // Check if the buffer contains a digit
-        //     if buffer.parse::<i32>().is_ok() {
-        //         digit_count += 1;
-
-        //         if digit_count == 1 {
-        //             first_digit = buffer.parse::<i32>().unwrap();
-        //         }
-
-        //         if digit_count >= 2 {
-        //             last_digit = buffer.parse::<i32>().unwrap();
-        //         }
-
-        //         println!("Found digit: {}", buffer.as_str());
-
-        //         buffer.clear();
-        //     }
-
-        //     // Clear the buffer if non of the above conditions are met, we need to make sure not to reset the buffer if we are in the middle of a word
-        //     // But if the word is a random set of characters, we need to clear the buffer
-
-        // }
-
-        // let words: Vec<&str> = line.split_whitespace().collect();
-
-        // for word in words {
-        //     // Check if the word is a digit
-        //     if word.parse::<i32>().is_ok() {
-        //         digit_count += 1;
-
-        //         if digit_count == 1 {
-        //             first_digit = word.parse::<i32>().unwrap();
-        //         }
-
-        //         if digit_count >= 2 {
-        //             last_digit = word.parse::<i32>().unwrap();
-        //         }
-        //     }
-
-        //     // Check if the word is a digit written out as a word
-        //     if PRIVILEGES.contains_key(word) {
-        //         digit_count += 1;
-
-        //         if digit_count == 1 {
-        //             first_digit = *PRIVILEGES.get(word).unwrap();
-        //         }
-
-        //         if digit_count >= 2 {
-        //             last_digit = *PRIVILEGES.get(word).unwrap();
-        //         }
-        //     }
-        // }
 
         // if digit_count == 1 {
         //     last_digit = first_digit;
@@ -194,14 +138,14 @@ fn part2(input: &str) -> String {
 
         println!("F1: {} | F2: {}\n", first_digit, last_digit);
 
-        // let combined_digits = std::fmt::format(format_args!("{}{}", first_digit, last_digit));
+        let combined_digits = std::fmt::format(format_args!("{}{}", first_digit, last_digit));
         // // println!("Combined: {}", combined_digits);
 
-        // sum += combined_digits.parse::<i32>().unwrap();
+        sum += combined_digits.parse::<i32>().unwrap();
     }
 
-    // let result = sum.to_string();
-    let result = "";
+    let result = sum.to_string();
+    // let result = "";
     return result.to_string();
 }
 
