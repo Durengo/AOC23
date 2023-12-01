@@ -1,29 +1,9 @@
 use std::collections::HashMap;
-use lazy_static::lazy_static;
-
-// Store digit words in a hashmap
-lazy_static! {
-    static ref PRIVILEGES: HashMap<&'static str, i32> = {
-        let mut digit_words = HashMap::new();
-        digit_words.insert("zero", 0);
-        digit_words.insert("one", 1);
-        digit_words.insert("two", 2);
-        digit_words.insert("three", 3);
-        digit_words.insert("four", 4);
-        digit_words.insert("five", 5);
-        digit_words.insert("six", 6);
-        digit_words.insert("seven", 7);
-        digit_words.insert("eight", 8);
-        digit_words.insert("nine", 9);
-
-        digit_words
-    };
-}
 
 fn main() {
     println!("Part 2!");
 
-    let input = include_str!("../../input_p2/test.txt");
+    let input = include_str!("../../input_p2/input.txt");
     let result = part2(input);
 
     println!("Result: {}", result);
@@ -31,122 +11,94 @@ fn main() {
 
 // Now we also need to check for digits written out as words.
 // It is also possible to have digits and word combinations.
-// We will use a hash map to find the word-form of a digit and convert it into a number.
-
+// We will use a hash map to find the word-digit convert it into a number.
 fn part2(input: &str) -> String {
-    println!("Input:\n{}", input);
+    let word_to_digit = HashMap::from([
+        ("zero", 0),
+        ("one", 1),
+        ("two", 2),
+        ("three", 3),
+        ("four", 4),
+        ("five", 5),
+        ("six", 6),
+        ("seven", 7),
+        ("eight", 8),
+        ("nine", 9),
+    ]);
 
     let mut sum = 0;
-    let mut buffer = String::new();
 
     for line in input.lines() {
-        // we only need the first and the last digit within a line
+        let mut first_digit = -1;
+        let mut last_digit = -1;
+        let mut current_char = 0;
         let mut digit_count = 0;
-        let mut first_digit = 0;
-        let mut last_digit = 0;
-        let mut current_start = 0;
 
-        buffer.clear();
-        buffer = line.to_string();
-        // buffer = line.to_string();
-        // println!("Line: {}", line);
+        // println!("Current Line: {}", line);
 
-        // Try to split the line into sections of words and digits using the hashmap
-        // We need to sample not character by character, but word by word - using the hashmap
-        let mut times = 0;
-        while buffer.len() != 0 {
-            for word in PRIVILEGES.iter() {
-                // let mut len = word.0.len();
+        while current_char < line.len() {
+            // We must take into account that once we reach the end of the line, we cannot take more than 5 characters
+            // Take a slice of the maximum possible length of a digit-word
+            // Then create a modifier to add to have a full word-digit
+            let mut modifier = 5;
+            if current_char + 5 > line.len() {
+                // We need to allow the modifier to take the remaining characters (up to 5) but not more than the line length
+                modifier = line.len() - current_char;
+            }
+            let slice = &line[current_char..current_char + modifier];
 
-                if word.0.len() > buffer.len() {
-                    continue;
+            // println!("Slice: {} | Current Char: {}, Modifier: {}", slice, current_char, modifier);
+
+            // Check against the hashmap
+            for digit_word in word_to_digit.iter() {
+                // If slice contains a digit then break, but only if it's not the first character
+                // Possible optimization to use starts with?
+                if slice.contains(&digit_word.1.to_string()) {
+                    let c = slice.chars().next().unwrap();
+                    if c.is_digit(10) {
+                        // digit found, add to first_digit or last_digit
+                        if digit_count == 0 {
+                            first_digit = c.to_digit(10).unwrap() as i32;
+                        }
+                        if digit_count >= 1 {
+                            last_digit = c.to_digit(10).unwrap() as i32;
+                        }
+                        digit_count += 1;
+                        break;
+                    }
                 }
 
-                let slice = (&buffer[0..word.0.len()]).to_string();
-
-                // println!("Buffer: {} | Word: {}", slice.as_str(), word.0);
-
-                if slice.contains(word.0) {
+                // We need to check the contains condition from the first char aka make sure that we don't find a matching word in the middle of the string
+                if slice.starts_with(digit_word.0) {
+                    // digit-word found, add to first_digit or last_digit
+                    if digit_count == 0 {
+                        first_digit = *digit_word.1;
+                    }
+                    if digit_count >= 1 {
+                        last_digit = *digit_word.1;
+                    }
                     digit_count += 1;
-
-                    if digit_count == 1 {
-                        first_digit = *word.1;
-                    }
-
-                    if digit_count >= 2 {
-                        last_digit = *word.1;
-                    }
-
-                    // Remove the word from the buffer, but only the first instance of it
-                    // buffer = buffer.replace(word.0, "");
-                    // println!("Removing slice: {}", slice.as_str());
-                    buffer = buffer.replacen(word.0, "", 1);
                     break;
                 }
             }
 
-            // println!("Buffer after: {}", buffer.as_str());
+            // println!("P1: {} | P2: {}", first_digit, last_digit);
 
-            if buffer.len() == 0 {
-                break;
-            }
-
-            // Now check specifically for digits
-            let slice: String = (&buffer[0..1]).to_string();
-            // println!("Slice 2: {}", slice.as_str());
-            if slice.parse::<i32>().is_ok() {
-                digit_count += 1;
-
-                if digit_count == 1 {
-                    first_digit = slice.parse::<i32>().unwrap();
-                }
-
-                if digit_count >= 2 {
-                    last_digit = slice.parse::<i32>().unwrap();
-                }
-
-                // Remove the word from the buffer
-                buffer = buffer.replacen(slice.as_str(), "", 1);
-                // println!("Removing slice: {}", slice.as_str());
-            }
-
-            times += 1;
-            if times > 1 {
-                let forward_slice: String = (&buffer[0..1]).to_string();
-                if forward_slice.parse::<i32>().is_ok() {
-                    // println!("Forward slice is digit: {}", forward_slice.as_str());
-                    digit_count += 1;
-
-                    if digit_count == 1 {
-                        first_digit = forward_slice.parse::<i32>().unwrap();
-                    }
-
-                    if digit_count >= 2 {
-                        last_digit = forward_slice.parse::<i32>().unwrap();
-                    }
-                }
-
-                buffer = (&buffer[1..]).to_string();
-                // println!("Buffer end loop: {}", buffer.as_str());
-                times = 0;
-            }
+            current_char += 1;
         }
 
-        // if digit_count == 1 {
-        //     last_digit = first_digit;
-        // }
+        if last_digit == -1 && first_digit != -1 {
+            last_digit = first_digit;
+        }
 
-        println!("F1: {} | F2: {}\n", first_digit, last_digit);
-
-        let combined_digits = std::fmt::format(format_args!("{}{}", first_digit, last_digit));
-        // // println!("Combined: {}", combined_digits);
-
-        sum += combined_digits.parse::<i32>().unwrap();
+        if first_digit != -1 && last_digit != -1 {
+            let combined_digits = format!("{}{}", first_digit, last_digit);
+            sum += combined_digits.parse::<i32>().unwrap();
+        } else {
+            panic!("Something went wrong!");
+        }
     }
-
-    let result = sum.to_string();
-    // let result = "";
-    return result.to_string();
+    return sum.to_string();
 }
 
 #[cfg(test)]
