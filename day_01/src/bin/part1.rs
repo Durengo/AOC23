@@ -1,7 +1,7 @@
 fn main() {
     println!("Part 1!");
 
-    let input = include_str!("../../input/input.txt");
+    let input = include_str!("../../input_p1/input.txt");
     let result = part1(input);
 
     println!("Result: {}", result);
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let input = include_str!("../../input/test.txt");
+        let input = include_str!("../../input_p1/test.txt");
 
         let actual = part1(input);
         let expected = "142".to_string();
