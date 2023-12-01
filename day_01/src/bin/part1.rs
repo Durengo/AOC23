@@ -1,11 +1,10 @@
 fn main() {
     println!("Part 1!");
 
-    // let input = include_str!("../../input/test.txt");
-    // let input = include_str!("../../input/input.txt");
-    // let result = part1(input);
+    let input = include_str!("../../input/input.txt");
+    let result = part1(input);
 
-    // println!("Result: {}", result);
+    println!("Result: {}", result);
 }
 
 fn part1(input: &str) -> String {
