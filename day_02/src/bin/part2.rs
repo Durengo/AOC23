@@ -1,9 +1,7 @@
-use std::collections::HashMap;
-
 fn main() {
     println!("Part 2!");
 
-    let input = include_str!("../../input_p2/test.txt");
+    let input = include_str!("../../input_p2/input.txt");
 
     let result = part2(input);
 
@@ -88,11 +86,6 @@ fn parse_games(input: &str) -> Vec<Game> {
         // The colors are separated by a comma and a space, so we can split the line by ", " and then split each color by " " to get the color and its count
         // But the colors are also in sets, so we need to split the line by "; " first to get the sets and then split each set by ", " to get the colors
         // We will use a hashmap to store the color and its count (defined earlier)
-        let mut color_count = HashMap::from([
-            ("red", 0),
-            ("green", 0),
-            ("blue", 0),
-        ]);
 
         // Split the line into two parts: the game id and the colors
         let mut line_parts: Vec<&str> = line.split(":").collect();
@@ -160,7 +153,7 @@ fn run_algorithm(games: &Vec<Game>) -> Vec<MinimumRequired> {
                 red = game.red[i];
             }
 
-            let mut previous = red;
+            let previous = red;
             red = game.red[i];
 
             if previous > red {
@@ -172,7 +165,7 @@ fn run_algorithm(games: &Vec<Game>) -> Vec<MinimumRequired> {
                 green = game.green[i];
             }
 
-            let mut previous = green;
+            let previous = green;
             green = game.green[i];
 
             if previous > green {
@@ -184,7 +177,7 @@ fn run_algorithm(games: &Vec<Game>) -> Vec<MinimumRequired> {
                 blue = game.blue[i];
             }
 
-            let mut previous = blue;
+            let previous = blue;
             blue = game.blue[i];
 
             if previous > blue {
@@ -208,7 +201,7 @@ fn run_algorithm(games: &Vec<Game>) -> Vec<MinimumRequired> {
 
 fn part2(input: &str) -> String {
     // Parse the input and get the games
-    let mut games: Vec<Game> = parse_games(input);
+    let games: Vec<Game> = parse_games(input);
 
     // for game in &games {
     //     game.print();
@@ -222,9 +215,9 @@ fn part2(input: &str) -> String {
 
     let minimum_cubes: Vec<MinimumRequired> = run_algorithm(&games);
 
-    for minimum in &minimum_cubes {
-        minimum.print();
-    }
+    // for minimum in &minimum_cubes {
+    //     minimum.print();
+    // }
 
     // Now we need to add the game ids together and return the result
     let mut sum: i32 = 0;
