@@ -7,32 +7,42 @@ fn main() {
 
     let input = include_str!("../../input_p1/input.txt");
 
-    let maxAllowed: MaximumAllowed = MaximumAllowed {
+    let max_allowed: MaximumAllowed = MaximumAllowed {
         red: 12,
         green: 13,
         blue: 14,
     };
 
-    let result = part1(input, &maxAllowed);
+    let result = part1(input, &max_allowed);
 
     println!("Result: {}", result);
 }
 
+#[derive(Clone)]
 struct Game {
     id: i32,
-    red: i32,
-    green: i32,
-    blue: i32,
+    red: Vec<i32>,
+    green: Vec<i32>,
+    blue: Vec<i32>,
 }
 
 impl Game {
     fn print(&self) {
+        let mut counts = String::new();
+        for i in 0..self.red.len() {
+            counts.push_str(format!("{} red, ", self.red[i]).as_str());
+        }
+        for i in 0..self.green.len() {
+            counts.push_str(format!("{} green, ", self.green[i]).as_str());
+        }
+        for i in 0..self.blue.len() {
+            counts.push_str(format!("{} blue, ", self.blue[i]).as_str());
+        }
+
         println!(
-            "Game:\nID: {}\nRed Count: {}\nGreen Count: {}\nBlue Count: {}",
+            "Game:\nID: {}\n{}",
             self.id,
-            self.red,
-            self.green,
-            self.blue
+            counts,
         );
     }
 }
@@ -63,9 +73,9 @@ fn parse_games(input: &str) -> Vec<Game> {
 
         let mut game = Game {
             id: 0,
-            red: 0,
-            green: 0,
-            blue: 0,
+            red: Vec::new(),
+            green: Vec::new(),
+            blue: Vec::new(),
         };
 
         // Each line is in such a format: "Game 1: x color1, y color2, z color3; x color1, y color2; z color3"
@@ -110,11 +120,11 @@ fn parse_games(input: &str) -> Vec<Game> {
 
                 // Check against the hashmap and add the color count to the hashmap
                 if color_count[1] == "red" {
-                    game.red += color_count[0].parse::<i32>().unwrap();
+                    game.red.push(color_count[0].parse::<i32>().unwrap());
                 } else if color_count[1] == "green" {
-                    game.green += color_count[0].parse::<i32>().unwrap();
+                    game.green.push(color_count[0].parse::<i32>().unwrap());
                 } else if color_count[1] == "blue" {
-                    game.blue += color_count[0].parse::<i32>().unwrap();
+                    game.blue.push(color_count[0].parse::<i32>().unwrap());
                 } else {
                     panic!("Invalid color!");
                 }
@@ -128,19 +138,36 @@ fn parse_games(input: &str) -> Vec<Game> {
     return games;
 }
 
-fn run_algorithm(games: &Vec<Game>, maxAllowed: &MaximumAllowed) -> Vec<i32> {
+fn run_algorithm(games: &Vec<Game>, max_allowed: &MaximumAllowed) -> Vec<i32> {
     let mut game_ids: Vec<i32> = Vec::new();
 
     // Iterate over the games and check if the current game's counts are less than the maximum allowed counts
     // If they are, we add them to a vector of game ids and then check the next game
     // If they are not, we check the next game
-    // If we reach the end of the games and we still don't have a combination that satisfies the maximum allowed counts, we panic, but we must recheck the games again
     for game in games {
-        if
-            game.red <= maxAllowed.red &&
-            game.green <= maxAllowed.green &&
-            game.blue <= maxAllowed.blue
-        {
+        let mut failed = false;
+
+        for i in 0..game.red.len() {
+            if game.red[i] > max_allowed.red {
+                failed = true;
+            }
+        }
+        for i in 0..game.green.len() {
+            if game.green[i] > max_allowed.green {
+                failed = true;
+            }
+        }
+        for i in 0..game.blue.len() {
+            if game.blue[i] > max_allowed.blue {
+                failed = true;
+            }
+        }
+
+        if failed {
+            // println!("GAME DOES NOT SATISFY CRITERIA!!!\n\n\n");
+            // game.print();
+            // println!("GAME DOES NOT SATISFY CRITERIA!!!\n\n\n");
+        } else {
             game_ids.push(game.id);
         }
     }
@@ -148,21 +175,17 @@ fn run_algorithm(games: &Vec<Game>, maxAllowed: &MaximumAllowed) -> Vec<i32> {
     return game_ids;
 }
 
-fn part1(input: &str, maxAllowed: &MaximumAllowed) -> String {
+fn part1(input: &str, max_allowed: &MaximumAllowed) -> String {
     // Parse the input and get the games
     let mut games: Vec<Game> = parse_games(input);
-    for game in &games {
-        game.print();
-    }
 
     // Since the Ids are already sorted, we can proceed
     // Now we need to find a game combination that satisfies the maximum allowed counts
     // We do this by iterating over the games and checking if the current game's counts are less than the maximum allowed counts
     // If they are, we add them to a vector of game ids and then check the next game
     // If they are not, we check the next game
-    // If we reach the end of the games and we still don't have a combination that satisfies the maximum allowed counts, we panic, but we must recheck the games again
 
-    let game_ids: Vec<i32> = run_algorithm(&games, &maxAllowed);
+    let game_ids: Vec<i32> = run_algorithm(&games, &max_allowed);
 
     println!("Game Ids: {:?}", game_ids);
 
@@ -184,13 +207,13 @@ mod tests {
     fn test_part1() {
         let input = include_str!("../../input_p1/test.txt");
 
-        let maxAllowed: MaximumAllowed = MaximumAllowed {
+        let max_allowed: MaximumAllowed = MaximumAllowed {
             red: 12,
             green: 13,
             blue: 14,
         };
 
-        let actual = part1(input, &maxAllowed);
+        let actual = part1(input, &max_allowed);
 
         let expected = "8".to_string();
 
