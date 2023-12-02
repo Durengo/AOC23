@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-// Current algorithm returns 480 for input, which is not correct.
-
 fn main() {
     println!("Part 1!");
 
